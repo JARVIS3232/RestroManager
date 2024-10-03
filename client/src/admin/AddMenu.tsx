@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Plus } from "lucide-react";
 import { FormEvent, useState } from "react";
 import EditMenu from "./EditMenu";
+import { MenuFormSchema, menuSchema } from "@/schema/menuSchema";
 
 const menus = [
   {
@@ -32,7 +33,7 @@ const menus = [
 ];
 
 const AddMenu = () => {
-  const [input, setInput] = useState<any>({
+  const [input, setInput] = useState<MenuFormSchema>({
     title: "",
     description: "",
     price: 0,
@@ -41,7 +42,10 @@ const AddMenu = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedMenu, setSelectedMenu] = useState<any>();
+
+  const [errors, setErrors] = useState<Partial<MenuFormSchema>>();
 
   const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -50,7 +54,16 @@ const AddMenu = () => {
 
   const submitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
+    const res = menuSchema.safeParse(input);
+    if (!res.success) {
+      const fieldErrors = res.error.formErrors.fieldErrors;
+      setErrors(fieldErrors as Partial<MenuFormSchema>);
+      setIsLoading(false);
+      return;
+    }
     console.log(input);
+    setIsLoading(false);
   };
 
   return (
@@ -85,6 +98,11 @@ const AddMenu = () => {
                   onChange={changeEventHandler}
                   placeholder="Enter menu name"
                 />
+                {errors && (
+                  <span className="text-sm text-red-600 font-medium">
+                    {errors.title}
+                  </span>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Description</Label>
@@ -96,6 +114,11 @@ const AddMenu = () => {
                   placeholder="Enter menu description"
                   className="focus-visible:ring-0 focus-visible:border-none"
                 />
+                {errors && (
+                  <span className="text-sm text-red-600 font-medium">
+                    {errors.description}
+                  </span>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Price in (Rupees)</Label>
@@ -107,6 +130,11 @@ const AddMenu = () => {
                   placeholder="Enter menu price"
                   className="focus-visible:ring-0 focus-visible:border-none"
                 />
+                {errors && (
+                  <span className="text-sm text-red-600 font-medium">
+                    {errors.price}
+                  </span>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Upload Menu Image</Label>
@@ -122,6 +150,11 @@ const AddMenu = () => {
                   }
                   className="cursor-pointer focus-visible:ring-0 focus-visible:border-none"
                 />
+                {errors && (
+                  <span className="text-sm text-red-600 font-medium">
+                    {errors.image?.name || "Image is required"}
+                  </span>
+                )}
               </div>
               <DialogFooter className="mt-5">
                 <Button
@@ -143,16 +176,16 @@ const AddMenu = () => {
           </DialogContent>
         </Dialog>
       </div>
-      {menus.map((item: any, idx: number) => (
-        <div className="mt-6 space-y-4">
-          <div className="flex flex-col lg:flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
+      {menus.map((item, idx: number) => (
+        <div key={idx} className="mt-6 space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
             <img
               src={item.image}
               alt="Detials"
-              className="md:h-24 md:w-full h-16 w-full lg:h-24 lg:w-full object-cover rounded-lg"
+              className="md:h-24 md:w-24 h-16 w-full object-cover rounded-lg"
             />
-            <div className="w-full mt-2">
-              <h1 className="lg:text-2xl md:text-xl text-lg font-semibold dark:text-gray-200text-gray-800">
+            <div className="flex-1">
+              <h1 className="text-lg font-semibold dark:text-gray-200 text-gray-800">
                 {item.title}
               </h1>
               <p className="text-lg sm:text-sm dark:text-gray-200 text-gray-800 mt-1">
@@ -161,25 +194,25 @@ const AddMenu = () => {
               <h2 className="text-lg font-semibold mt-2">
                 Price: <span className="text-[#D19254]">{item.price} Rs</span>
               </h2>
-              <Button
-                onClick={() => {
-                  setSelectedMenu(menus);
-                  setEditOpen(true);
-                }}
-                size="sm"
-                className="mt-2 w-full bg-orange hover:bg-hoverOrange"
-              >
-                Edit
-              </Button>
             </div>
+            <Button
+              onClick={() => {
+                setSelectedMenu(menus[idx]);
+                setEditOpen(true);
+              }}
+              size="sm"
+              className="mt-2 bg-orange hover:bg-hoverOrange"
+            >
+              Edit
+            </Button>
           </div>
-          <EditMenu
-            selectedMenu={selectedMenu}
-            editOpen={editOpen}
-            setEditOpen={setEditOpen}
-          />
         </div>
       ))}
+      <EditMenu
+        selectedMenu={selectedMenu}
+        editOpen={editOpen}
+        setEditOpen={setEditOpen}
+      />
     </div>
   );
 };
