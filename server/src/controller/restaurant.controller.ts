@@ -3,6 +3,7 @@ import { Restaurant } from "../models/restaurant.model";
 import { Multer } from "multer";
 import uploadImageOnCloudinary from "../utils/imageUploader";
 import { Order } from "../models/order.model";
+
 export const createRestaurant = async (req: Request, res: Response) => {
   try {
     const { restaurantName, city, country, price, deliveryTime, cuisines } =
@@ -46,9 +47,9 @@ export const createRestaurant = async (req: Request, res: Response) => {
 
 export const getRestaurant = async (req: Request, res: Response) => {
   try {
-    const restaurant = await Restaurant.find({
+    const restaurant = await Restaurant.findOne({
       user: req.id,
-    });
+    }).populate("menus");
     if (!restaurant) {
       res.status(404).json({
         success: false,
@@ -192,7 +193,7 @@ export const searchRestaurant = async (req: Request, res: Response) => {
     const restaurants = await Restaurant.find(query);
     res.status(200).json({
       success: true,
-      data: restaurants,
+      restaurants: restaurants,
     });
   } catch (error) {
     console.log(error);

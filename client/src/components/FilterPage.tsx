@@ -1,3 +1,4 @@
+import { useRestaurantStore } from "@/store/useRestaurantStore";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
@@ -75,7 +76,10 @@ const filterOptions: IFilterOptions[] = [
 ];
 
 const FilterPage = () => {
-  const appliedFilterHandler = (value: string) => {};
+  const { setAppliedFilter } = useRestaurantStore();
+  const appliedFilterHandler = (value: string) => {
+    setAppliedFilter(value);
+  };
 
   return (
     <div className="md:w-72">

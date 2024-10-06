@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { LoginInputState, userLoginSchema } from "@/schema/userSchema";
+import { useUserStore } from "@/store/useUserStore";
 import { Loader2, LockKeyhole, Mail } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isLoading, setisLoading] = useState(false);
@@ -13,12 +14,14 @@ const Login = () => {
     password: "",
   });
   const [errors, setErrors] = useState<Partial<LoginInputState>>({});
+  const navigate = useNavigate();
+  const { login } = useUserStore();
   const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInput({ ...input, [name]: value });
   };
 
-  const loginSubmitHandler = (e: FormEvent) => {
+  const loginSubmitHandler = async (e: FormEvent) => {
     e.preventDefault();
     setisLoading(true);
     const res = userLoginSchema.safeParse(input);
@@ -29,7 +32,13 @@ const Login = () => {
       return;
     }
     setErrors({});
-    console.log(input);
+    try {
+      await login(input);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      setisLoading(false);
+    }
     setisLoading(false);
   };
   return (

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,27 +15,14 @@ import { Loader2, Plus } from "lucide-react";
 import { FormEvent, useState } from "react";
 import EditMenu from "./EditMenu";
 import { MenuFormSchema, menuSchema } from "@/schema/menuSchema";
-
-const menus = [
-  {
-    title: "Pizza",
-    description: "optio iusto voluptatum, adipisci numquam.",
-    price: 80,
-    image:
-      "https://i0.wp.com/blog.petpooja.com/wp-content/uploads/2021/10/indian.jpg?resize=696%2C385&ssl=1",
-  },
-  {
-    title: "Pizza",
-    description: "optio iusto voluptatum, adipisci numquam.",
-    price: 80,
-    image:
-      "https://i0.wp.com/blog.petpooja.com/wp-content/uploads/2021/10/indian.jpg?resize=696%2C385&ssl=1",
-  },
-];
+import { useMenuStore } from "@/store/useMenuStore";
+import { useRestaurantStore } from "@/store/useRestaurantStore";
 
 const AddMenu = () => {
+  const { createMenu } = useMenuStore();
+  const { restaurant } = useRestaurantStore();
   const [input, setInput] = useState<MenuFormSchema>({
-    title: "",
+    name: "",
     description: "",
     price: 0,
     image: undefined,
@@ -42,7 +30,6 @@ const AddMenu = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedMenu, setSelectedMenu] = useState<any>();
 
   const [errors, setErrors] = useState<Partial<MenuFormSchema>>();
@@ -52,7 +39,7 @@ const AddMenu = () => {
     setInput({ ...input, [name]: type === "number" ? Number(value) : value });
   };
 
-  const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     const res = menuSchema.safeParse(input);
@@ -62,10 +49,21 @@ const AddMenu = () => {
       setIsLoading(false);
       return;
     }
-    console.log(input);
+    try {
+      const formData = new FormData();
+      formData.append("name", input.name);
+      formData.append("description", input.description);
+      formData.append("price", input.price.toString());
+      if (input.image) {
+        formData.append("image", input.image);
+      }
+      await createMenu(formData);
+    } catch (error) {
+      console.log(error);
+    }
     setIsLoading(false);
+    setOpen(false);
   };
-
   return (
     <div className="max-w-6xl mx-auto my-10">
       <div className="flex justify-between">
@@ -92,15 +90,15 @@ const AddMenu = () => {
                 <Label>Name</Label>
                 <Input
                   className="focus-visible:ring-0 focus-visible:border-none"
-                  name="title"
+                  name="name"
                   type="text"
-                  value={input.title}
+                  value={input.name}
                   onChange={changeEventHandler}
                   placeholder="Enter menu name"
                 />
                 {errors && (
                   <span className="text-sm text-red-600 font-medium">
-                    {errors.title}
+                    {errors.name}
                   </span>
                 )}
               </div>
@@ -152,7 +150,7 @@ const AddMenu = () => {
                 />
                 {errors && (
                   <span className="text-sm text-red-600 font-medium">
-                    {errors.image?.name || "Image is required"}
+                    {errors.image?.name}
                   </span>
                 )}
               </div>
@@ -176,7 +174,7 @@ const AddMenu = () => {
           </DialogContent>
         </Dialog>
       </div>
-      {menus.map((item, idx: number) => (
+      {restaurant!.menus.map((item: any, idx: number) => (
         <div key={idx} className="mt-6 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
             <img
@@ -186,7 +184,7 @@ const AddMenu = () => {
             />
             <div className="flex-1">
               <h1 className="text-lg font-semibold dark:text-gray-200 text-gray-800">
-                {item.title}
+                {item.name}
               </h1>
               <p className="text-lg sm:text-sm dark:text-gray-200 text-gray-800 mt-1">
                 {item.description}
@@ -197,7 +195,7 @@ const AddMenu = () => {
             </div>
             <Button
               onClick={() => {
-                setSelectedMenu(menus[idx]);
+                setSelectedMenu(restaurant!.menus[idx]);
                 setEditOpen(true);
               }}
               size="sm"

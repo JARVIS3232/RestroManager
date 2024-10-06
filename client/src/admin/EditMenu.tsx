@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MenuFormSchema, menuSchema } from "@/schema/menuSchema";
+import { useMenuStore } from "@/store/useMenuStore";
 import { Loader2 } from "lucide-react";
 import {
   Dispatch,
@@ -28,10 +29,11 @@ const EditMenu = ({
   editOpen: boolean;
   setEditOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { editMenu } = useMenuStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Partial<MenuFormSchema>>();
   const [input, setInput] = useState<MenuFormSchema>({
-    title: "",
+    name: "",
     description: "",
     price: 0,
     image: undefined,
@@ -42,7 +44,7 @@ const EditMenu = ({
     setInput({ ...input, [name]: type === "number" ? Number(value) : value });
   };
 
-  const submitHandler = (e: FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     const res = menuSchema.safeParse(input);
@@ -53,14 +55,25 @@ const EditMenu = ({
       setIsLoading(false);
       return;
     }
-    console.log(input);
-    setIsLoading(false);
+
+    try {
+      const formData = new FormData();
+      formData.append("name", input.name);
+      formData.append("description", input.description);
+      formData.append("price", input.price.toString());
+      if (input.image) {
+        formData.append("image", input.image);
+      }
+      await editMenu(selectedMenu._id!, formData);
+    } catch (error) {
+      console.log(error);
+    }
     setEditOpen(false);
   };
 
   useEffect(() => {
     setInput({
-      title: selectedMenu?.title || "",
+      name: selectedMenu?.name || "",
       description: selectedMenu?.description || "",
       price: selectedMenu?.price || 0,
       image: undefined,
@@ -81,15 +94,15 @@ const EditMenu = ({
             <Label>Name</Label>
             <Input
               className="focus-visible:ring-0 focus-visible:border-none"
-              name="title"
+              name="name"
               type="text"
-              value={input?.title}
+              value={input?.name}
               onChange={changeEventHandler}
               placeholder="Enter menu name"
             />
             {errors && (
               <span className="text-sm text-red-600 font-medium">
-                {errors.title}
+                {errors.name}
               </span>
             )}
           </div>

@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useUserStore } from "@/store/useUserStore";
 import { Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const VerifyEmail = () => {
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
-  const [isLoading, setisLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { verifyEmail } = useUserStore();
   const inputRef = useRef<any>([]);
   const navigate = useNavigate();
   const handleChange = (index: number, value: string) => {
@@ -29,6 +31,19 @@ const VerifyEmail = () => {
       inputRef.current[index - 1].focus();
     }
   };
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    const verificationCode = otp.join("");
+    try {
+      await verifyEmail(verificationCode);
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+    setIsLoading(false);
+  };
   return (
     <div className="flex items-center justify-center h-screen w-full">
       <div className="p-8 rounded-md w-full max-w-md flex flex-col gap-10 border border-gray-200">
@@ -38,7 +53,7 @@ const VerifyEmail = () => {
             Enter the 6 digit code sent to your email address.
           </p>
         </div>
-        <form>
+        <form onSubmit={submitHandler}>
           <div className="flex justify-between gap-3">
             {otp.map((letter: string, index: number) => {
               return (

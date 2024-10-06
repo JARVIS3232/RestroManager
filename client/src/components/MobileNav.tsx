@@ -11,6 +11,7 @@ import {
 import { Button } from "./ui/button";
 import {
   HandPlatter,
+  Loader2,
   Menu,
   PackageCheck,
   ShoppingCart,
@@ -19,10 +20,26 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import { Separator } from "./ui/separator";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useUserStore } from "@/store/useUserStore";
+import { useState } from "react";
 
 const MobileNav = () => {
+  const { user, logout } = useUserStore();
+  const [isLoading, setisLoading] = useState(false);
+  const navigate = useNavigate();
+  const clickHandler = async () => {
+    setisLoading(true);
+    try {
+      await logout();
+      navigate("/login");
+      setisLoading(false);
+    } catch (error) {
+      console.log(error);
+      setisLoading(false);
+    }
+  };
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -39,8 +56,8 @@ const MobileNav = () => {
           <SheetTitle className="pt-3">DailyEats</SheetTitle>
           <ModeToggle />
         </SheetHeader>
-        <Separator className="my-2" />
         <SheetDescription className="flex-1">
+          <Separator className="my-2" />
           <Link
             to="/profile"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
@@ -62,27 +79,31 @@ const MobileNav = () => {
             <ShoppingCart />
             <span>Cart(0)</span>
           </Link>
-          <Link
-            to="/menu"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <Menu />
-            <span>Menu</span>
-          </Link>
-          <Link
-            to="admin/restaurant"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <UtensilsCrossed />
-            <span>Restaurant</span>
-          </Link>
-          <Link
-            to="admin/Orders"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <PackageCheck />
-            <span>Restaurant Orders</span>
-          </Link>
+          {user?.admin && (
+            <>
+              <Link
+                to="/menu"
+                className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+              >
+                <Menu />
+                <span>Menu</span>
+              </Link>
+              <Link
+                to="admin/restaurant"
+                className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+              >
+                <UtensilsCrossed />
+                <span>Restaurant</span>
+              </Link>
+              <Link
+                to="admin/Orders"
+                className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+              >
+                <PackageCheck />
+                <span>Restaurant Orders</span>
+              </Link>
+            </>
+          )}
         </SheetDescription>
         <SheetFooter className="flex flex-col gap-4">
           <div className="flex flex-row items-center gap-2">
@@ -94,10 +115,18 @@ const MobileNav = () => {
           </div>
           <SheetClose asChild>
             <Button
-              type="submit"
-              className="bg-orange hover:bg-hoverOrange w-full"
+              className="bg-orange hover:bg-hoverOrange"
+              disabled={isLoading}
+              onClick={clickHandler}
             >
-              Logout
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Logging out ...</span>
+                </div>
+              ) : (
+                "Logout"
+              )}
             </Button>
           </SheetClose>
         </SheetFooter>

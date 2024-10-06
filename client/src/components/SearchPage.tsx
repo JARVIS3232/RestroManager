@@ -1,16 +1,24 @@
 import { useParams } from "react-router-dom";
 import FilterPage from "./FilterPage";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import RestroCardSkeleton from "./RestroCardSkeleton";
 import RestroCard from "./RestroCard";
 import { X } from "lucide-react";
+import { useRestaurantStore } from "@/store/useRestaurantStore";
 const SearchPage = () => {
   const params = useParams();
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const { searchRestaurant, searchedRestaurant, appliedFilter } =
+    useRestaurantStore();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    searchRestaurant(params.text!, searchQuery, appliedFilter);
+    console.log(searchedRestaurant);
+  }, [params.text!, appliedFilter]);
 
   return (
     <div className="max-w-7xl mx-auto my-10">

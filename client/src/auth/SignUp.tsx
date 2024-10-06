@@ -2,12 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SignupInputState, userSignupSchema } from "@/schema/userSchema";
+import { useUserStore } from "@/store/useUserStore";
 import { Loader2, LockKeyhole, Mail, Phone, User } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
 const SignUp = () => {
   const [isLoading, setisLoading] = useState(false);
+  const navigate = useNavigate();
   const [input, setInput] = useState<SignupInputState>({
     fullName: "",
     email: "",
@@ -15,13 +16,14 @@ const SignUp = () => {
     contact: "",
   });
   const [errors, setErrors] = useState<Partial<SignupInputState>>({});
+  const { signup } = useUserStore();
 
   const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInput({ ...input, [name]: value });
   };
 
-  const signUpSubmitHandler = (e: FormEvent) => {
+  const signUpSubmitHandler = async (e: FormEvent) => {
     e.preventDefault();
     setisLoading(true);
     const res = userSignupSchema.safeParse(input);
@@ -32,7 +34,13 @@ const SignUp = () => {
       return;
     }
     setErrors({});
-    console.log(input);
+    try {
+      await signup(input);
+      navigate("/verify-email");
+    } catch (error) {
+      console.log(error);
+      setisLoading(false);
+    }
     setisLoading(false);
   };
   return (

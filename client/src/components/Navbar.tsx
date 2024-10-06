@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Menubar,
   MenubarContent,
@@ -12,10 +12,23 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useState } from "react";
 import MobileNav from "./MobileNav";
+import { useUserStore } from "@/store/useUserStore";
 
 const Navbar = () => {
-  const admin = true;
   const [isLoading, setisLoading] = useState(false);
+  const { user, logout } = useUserStore();
+  const navigate = useNavigate();
+  const clickHandler = async () => {
+    setisLoading(true);
+    try {
+      await logout();
+      navigate("/login");
+      setisLoading(false);
+    } catch (error) {
+      console.log(error);
+      setisLoading(false);
+    }
+  };
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between h-14">
@@ -27,7 +40,7 @@ const Navbar = () => {
             <Link to="/">Home</Link>
             <Link to="/profile">Profile</Link>
             <Link to="/order/status">Order</Link>
-            {admin && (
+            {user?.admin && (
               <Menubar>
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer">
@@ -71,6 +84,7 @@ const Navbar = () => {
               <Button
                 className="bg-orange hover:bg-hoverOrange"
                 disabled={isLoading}
+                onClick={clickHandler}
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">

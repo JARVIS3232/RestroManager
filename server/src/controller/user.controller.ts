@@ -95,9 +95,9 @@ export const login = async (req: Request, res: Response) => {
 
 export const verifyEmail = async (req: Request, res: Response) => {
   try {
-    const { verificatonCode } = req.body;
+    const { verificationCode } = req.body;
     const user = await User.findOne({
-      verificationToken: verificatonCode,
+      verificationToken: verificationCode,
       verificationTokenExpiresAt: { $gt: Date.now() },
     }).select("-password");
 
@@ -213,7 +213,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const checkAuth = async (req: Request, res: Response) => {
   try {
     const userId = req.id;
-    const user = await User.findById({ userId }).select("-password");
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       res.status(404).json({
         success: false,
@@ -228,7 +228,7 @@ export const checkAuth = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 

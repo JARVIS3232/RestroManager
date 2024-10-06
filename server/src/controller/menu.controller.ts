@@ -23,9 +23,7 @@ export const addMenu = async (req: Request, res: Response) => {
 
     const restaurant = await Restaurant.findOne({ user: req.id });
     if (restaurant) {
-      (restaurant.menus as mongoose.Schema.Types.ObjectId[]).push(
-        menu._id as mongoose.Schema.Types.ObjectId
-      );
+      restaurant.menus.push(menu._id as mongoose.Schema.Types.ObjectId);
       await restaurant.save();
       res.status(201).json({
         success: true,
