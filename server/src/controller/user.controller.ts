@@ -235,13 +235,12 @@ export const checkAuth = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.id;
-    const { fullName, email, address, city, country, profilePicture } =
+    const { fullname, email, address, city, country, profilePicture } =
       req.body;
-
     let cloudResponse: any;
     cloudResponse = await cloudinary.uploader.upload(profilePicture);
     const updatedData = {
-      fullName,
+      fullname,
       email,
       address,
       city,
@@ -255,6 +254,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
+      user,
       message: "Profile updated successfully",
     });
   } catch (error) {

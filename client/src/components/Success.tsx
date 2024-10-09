@@ -1,10 +1,19 @@
-import Image from "@/assets/pizza.png";
 import { IndianRupee } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useOrderStore } from "@/store/useOrderStore";
+import { useEffect } from "react";
+import { CartItem, Orders } from "@/types/OrderType";
 const Success = () => {
-  const orders = [1, 2];
+  const { orders, getOrderDetails } = useOrderStore();
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      await getOrderDetails();
+    };
+    fetchOrders();
+  }, [orders, getOrderDetails]);
   if (orders.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -27,27 +36,35 @@ const Success = () => {
           <h2 className="mb-4 text-lg font-semibold text-gray-700 dark:text-gray-300">
             Order Summary
           </h2>
-          <div className="mb-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <img
-                  src={Image}
-                  alt="image"
-                  className="w-14 h-14 rounded-md object-cover"
-                />
-                <h3 className="ml-4 text-gray-800 dark:text-gray-200 font-medium">
-                  Pizza
-                </h3>
-              </div>
-              <div className="text-right">
-                <div className="text-gray-800 dark:text-gray-200 flex items-center">
-                  <IndianRupee />
-                  <span className="text-lg font-medium">80</span>
-                </div>
-              </div>
+          {orders.map((order: Orders) => (
+            <div key={order._id} className="mb-4">
+              {order.cartItems.map((item: CartItem, idx: number) => (
+                <>
+                  <div key={idx} className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <img
+                        src={item.image}
+                        alt="image"
+                        className="w-14 h-14 rounded-md object-cover"
+                      />
+                      <h3 className="ml-4 text-gray-800 dark:text-gray-200 font-medium">
+                        {item.name} <span>({item.quantity})</span>
+                      </h3>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-gray-800 dark:text-gray-200 flex items-center">
+                        <IndianRupee />
+                        <span className="text-lg font-medium">
+                          {Number(item.price) * Number(item.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <Separator className="dark:bg-gray-200 mt-4" />
+                </>
+              ))}
             </div>
-            <Separator className="dark:bg-gray-200 mt-4" />
-          </div>
+          ))}
         </div>
         <Link to="/cart">
           <Button className="bg-orange hover:bg-hoverOrange w-full py-3 rounded-md shadow-lg">

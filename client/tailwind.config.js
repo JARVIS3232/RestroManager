@@ -14,6 +14,7 @@ export default {
         hoverOrange: "var(--hoverButtonColor)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        lightGray: "#f7f7f7",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

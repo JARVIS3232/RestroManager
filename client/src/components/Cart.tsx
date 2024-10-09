@@ -1,5 +1,6 @@
 import { Minus, Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+
 import { Button } from "./ui/button";
 import {
   Table,
@@ -12,13 +13,28 @@ import {
 } from "./ui/table";
 import { useState } from "react";
 import CheckoutConfirmPage from "./CheckoutConfirmPage";
+import { useCartStore } from "@/store/useCartStore";
+import { CartItem } from "@/types/CartTypes";
 
 const Cart = () => {
   const [open, setOpen] = useState<boolean>(false);
+  const {
+    cart,
+    incrementQuantity,
+    decrementQuantity,
+    removeFromCart,
+    clearCart,
+  } = useCartStore();
+
+  const totalAmount = cart.reduce((acc, ele) => {
+    return acc + ele.price * ele.quantity;
+  }, 0);
   return (
     <div className="flex flex-col max-w-7xl mx-auto my-10">
       <div className="flex justify-end">
-        <Button variant={"link"}>Clear All</Button>
+        <Button onClick={() => clearCart()} variant={"link"}>
+          Clear All
+        </Button>
       </div>
       <Table>
         <TableHeader>
@@ -32,53 +48,60 @@ const Cart = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>
-              <Avatar>
-                <AvatarImage src="" alt="" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-            </TableCell>
-            <TableCell>Biryani</TableCell>
-            <TableCell>80 Rs</TableCell>
-            <TableCell>
-              <div className="w-fit flex items-center rounded-full border border-gray-100 dark:border-gray-800 shadow-md">
+          {cart.map((cartItem: CartItem) => (
+            <TableRow key={cartItem._id}>
+              <TableCell>
+                <Avatar>
+                  <AvatarImage src={cartItem.image} alt="" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              </TableCell>
+              <TableCell>{cartItem.name}</TableCell>
+              <TableCell>{cartItem.price} Rs</TableCell>
+              <TableCell>
+                <div className="w-fit flex items-center rounded-full border border-gray-100 dark:border-gray-800 shadow-md">
+                  <Button
+                    className="rounded-full bg-gray-200 dark:hover:text-white dark:text-gray-800 cursor-pointer"
+                    variant={"outline"}
+                    size={"icon"}
+                    onClick={() => decrementQuantity(cartItem._id)}
+                  >
+                    <Minus size={15} />
+                  </Button>
+                  <Button
+                    disabled
+                    variant="outline"
+                    size={"icon"}
+                    className="font-extrabold dark:text-white text-gray-900 border-none focus-visible:ring-0 pointer-events-none"
+                  >
+                    {cartItem.quantity}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size={"icon"}
+                    className="rounded-full bg-orange hover:bg-hoverOrange  dark:hover:text-white dark:text-gray-800 cursor-pointer"
+                    onClick={() => incrementQuantity(cartItem._id)}
+                  >
+                    <Plus size={15} />
+                  </Button>
+                </div>
+              </TableCell>
+              <TableCell>{cartItem.price * cartItem.quantity} Rs</TableCell>
+              <TableCell className="text-right">
                 <Button
-                  className="rounded-full bg-gray-200 dark:hover:text-white dark:text-gray-800 cursor-pointer"
-                  variant={"outline"}
-                  size={"icon"}
+                  onClick={() => removeFromCart(cartItem._id)}
+                  className="p-4 rounded-lg bg-orange hover:bg-hoverOrange w-16 h-8"
                 >
-                  <Minus size={15} />
+                  Remove
                 </Button>
-                <Button
-                  disabled
-                  variant="outline"
-                  size={"icon"}
-                  className="font-bold border-none focus-visible:ring-0"
-                >
-                  1
-                </Button>
-                <Button
-                  variant="outline"
-                  size={"icon"}
-                  className="rounded-full bg-orange hover:bg-hoverOrange  dark:hover:text-white dark:text-gray-800 cursor-pointer"
-                >
-                  <Plus size={15} />
-                </Button>
-              </div>
-            </TableCell>
-            <TableCell>80 Rs</TableCell>
-            <TableCell className="text-right">
-              <Button className="p-4 rounded-lg bg-orange hover:bg-hoverOrange w-16 h-8">
-                Remove
-              </Button>
-            </TableCell>
-          </TableRow>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={5}>Total</TableCell>
-            <TableCell className="text-right">80 Rs</TableCell>
+            <TableCell colSpan={5}>Total Amount To Pay</TableCell>
+            <TableCell className="text-right">{totalAmount} Rs</TableCell>
           </TableRow>
         </TableFooter>
       </Table>

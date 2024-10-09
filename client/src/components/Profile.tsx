@@ -4,22 +4,33 @@ import { FormEvent, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { useUserStore } from "@/store/useUserStore";
+import { toast } from "sonner";
 
 const Profile = () => {
-  const [isLoading, setisLoading] = useState(false);
+  const { user, updateProfile } = useUserStore();
+  const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState({
-    fullName: "",
-    email: "",
-    address: "",
-    city: "",
-    country: "",
-    profilePicture: "",
+    fullName: user?.fullName || "",
+    email: user?.email || "",
+    address: user?.address || "",
+    city: user?.city || "",
+    country: user?.country || "",
+    profilePicture: user?.profilePicture || "",
   });
   const imageRef = useRef<HTMLInputElement | null>(null);
-  const [selectedProfilePicture, setSelectedProfilePicture] = useState("");
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState(
+    profileData.profilePicture
+  );
   const fileChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file?.size / 1024 / 1024 > 2) {
+        toast.error("Image size should be less than 2 Mb", {
+          position: "top-center",
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         const res = reader.result as string;
@@ -30,9 +41,11 @@ const Profile = () => {
     }
   };
 
-  const updateProfileHandler = (e: FormEvent<HTMLFormElement>) => {
+  const updateProfileHandler = async (e: FormEvent<HTMLFormElement>) => {
+    setIsLoading(true);
     e.preventDefault();
-    console.log(profileData);
+    await updateProfile(profileData);
+    setIsLoading(false);
   };
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +88,7 @@ const Profile = () => {
           <div className="w-full">
             <Label>Email</Label>
             <input
+              disabled
               type="email"
               name="email"
               value={profileData.email}
@@ -128,6 +142,7 @@ const Profile = () => {
           <Button
             className="bg-orange hover:bg-hoverOrange"
             disabled={isLoading}
+            onClick={() => updateProfileHandler}
           >
             {isLoading ? (
               <div className="flex items-center gap-2">

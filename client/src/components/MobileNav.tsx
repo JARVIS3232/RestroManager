@@ -24,8 +24,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUserStore } from "@/store/useUserStore";
 import { useState } from "react";
+import { useCartStore } from "@/store/useCartStore";
 
 const MobileNav = () => {
+  const { cart } = useCartStore();
   const { user, logout } = useUserStore();
   const [isLoading, setisLoading] = useState(false);
   const navigate = useNavigate();
@@ -37,8 +39,8 @@ const MobileNav = () => {
       setisLoading(false);
     } catch (error) {
       console.log(error);
-      setisLoading(false);
     }
+    setisLoading(false);
   };
   return (
     <Sheet>
@@ -77,12 +79,18 @@ const MobileNav = () => {
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
           >
             <ShoppingCart />
-            <span>Cart(0)</span>
+            Cart
+            <Button
+              size="icon"
+              className="absolute left-28 text-sm rounded-full h-4 w-4 bg-red-500 hover:bg-red-500"
+            >
+              {cart.length}
+            </Button>
           </Link>
           {user?.admin && (
             <>
               <Link
-                to="/menu"
+                to="/admin/menu"
                 className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
               >
                 <Menu />
@@ -108,10 +116,10 @@ const MobileNav = () => {
         <SheetFooter className="flex flex-col gap-4">
           <div className="flex flex-row items-center gap-2">
             <Avatar>
-              <AvatarImage src="" />
+              <AvatarImage src={user?.profilePicture} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <h1 className="font-bold">Developer</h1>
+            <h1 className="font-bold">{user?.fullName}</h1>
           </div>
           <SheetClose asChild>
             <Button

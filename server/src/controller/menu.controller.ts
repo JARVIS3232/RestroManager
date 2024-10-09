@@ -76,3 +76,39 @@ export const editMenu = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const removeMenu = async (req: Request, res: Response) => {
+  try {
+    const { id: menuId } = req.params;
+    if (menuId) {
+      const menus = await Menu.findByIdAndDelete(menuId);
+      if (menus) {
+        const restaurant = await Restaurant.findOne({ user: req.id });
+        if (!restaurant) {
+          res
+            .status(404)
+            .json({ success: false, message: "Restaurant not found" });
+          return;
+        }
+        restaurant.menus = restaurant.menus.filter((menu) => {
+          menu.toString() !== menuId;
+        });
+        await restaurant.save();
+        res.status(200).json({
+          success: true,
+          message: "Menu removed from your restaurant",
+        });
+      } else {
+        res.status(404).json({ success: false, message: "Menu not found !" });
+      }
+    } else {
+      res.status(404).json({ success: false, message: "MenuId not found !" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

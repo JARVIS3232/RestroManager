@@ -13,10 +13,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useState } from "react";
 import MobileNav from "./MobileNav";
 import { useUserStore } from "@/store/useUserStore";
+import { useCartStore } from "@/store/useCartStore";
 
 const Navbar = () => {
   const [isLoading, setisLoading] = useState(false);
   const { user, logout } = useUserStore();
+  const { cart } = useCartStore();
   const navigate = useNavigate();
   const clickHandler = async () => {
     setisLoading(true);
@@ -67,16 +69,18 @@ const Navbar = () => {
             </div>
             <Link to="/cart" className="relative cursor-pointer">
               <ShoppingCart />
-              <Button
-                size="icon"
-                className="absolute -inset-y-3 left-2 text-sm rounded-full h-4 w-4 bg-red-500 hover:bg-red-500"
-              >
-                1
-              </Button>
+              {cart.length > 0 && (
+                <Button
+                  size="icon"
+                  className="absolute -inset-y-3 left-2 text-sm rounded-full h-4 w-4 bg-red-500 hover:bg-red-500"
+                >
+                  {cart.length}
+                </Button>
+              )}
             </Link>
             <div>
               <Avatar>
-                <AvatarImage src="" />
+                <AvatarImage src={user?.profilePicture} />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             </div>

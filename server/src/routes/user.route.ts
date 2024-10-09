@@ -20,7 +20,7 @@ router.route("/logout").post(logout);
 router.route("/verify-email").post(verifyEmail);
 router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password/:token").post(resetPassword);
-router.route("/forgot-password").put(isAuthenticated, updateProfile);
+router.route("/profile/update").put(isAuthenticated, updateProfile);
 router.route("/forgot-password").post(forgotPassword);
 
 export default router;

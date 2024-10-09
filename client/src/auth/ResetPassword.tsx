@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, LockKeyhole, Mail } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState<string>("");
-  const [isLoading, setisLoading] = useState(false);
+  // const [isLoading, setisLoading] = useState(false);
   return (
     <div className="flex items-center justify-center min-h-screen w-full">
       <form className="flex flex-col gap-5 md:border md:p-8 w-full max-w-md rounded-lg mx-4">
@@ -25,18 +25,8 @@ const ResetPassword = () => {
             />
             <LockKeyhole className="absolute inset-y-2 left-2 text-gray-600 pointer-events-none" />
           </div>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="mt-2 bg-orange hover:bg-hoverOrange"
-          >
-            {isLoading ? (
-              <div className="flex items-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Changing ...
-              </div>
-            ) : (
-              "Change Password"
-            )}
+          <Button type="submit" className="mt-2 bg-orange hover:bg-hoverOrange">
+            Change Password
           </Button>
           <span>
             Back to{" "}

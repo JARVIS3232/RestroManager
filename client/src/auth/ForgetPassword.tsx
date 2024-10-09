@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState<string>("");
-  const [isLoading, setisLoading] = useState(false);
+  // const [isLoading, setisLoading] = useState(false);
   return (
     <div className="flex items-center justify-center min-h-screen w-full">
       <form className="flex flex-col gap-5 md:border md:p-8 w-full max-w-md rounded-lg mx-4">
@@ -27,18 +27,8 @@ const ForgetPassword = () => {
             />
             <Mail className="absolute inset-y-2 left-2 text-gray-600 pointer-events-none" />
           </div>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="mt-2 bg-orange hover:bg-hoverOrange"
-          >
-            {isLoading ? (
-              <div className="flex items-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending ...
-              </div>
-            ) : (
-              "Send reset link"
-            )}
+          <Button type="submit" className="mt-2 bg-orange hover:bg-hoverOrange">
+            Send reset link
           </Button>
           <span>
             Back to{" "}

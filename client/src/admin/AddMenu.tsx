@@ -12,15 +12,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Plus } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import EditMenu from "./EditMenu";
 import { MenuFormSchema, menuSchema } from "@/schema/menuSchema";
 import { useMenuStore } from "@/store/useMenuStore";
 import { useRestaurantStore } from "@/store/useRestaurantStore";
 
 const AddMenu = () => {
-  const { createMenu } = useMenuStore();
-  const { restaurant } = useRestaurantStore();
+  const { createMenu, removeMenu } = useMenuStore();
+  const { restaurant, getRestaurant } = useRestaurantStore();
   const [input, setInput] = useState<MenuFormSchema>({
     name: "",
     description: "",
@@ -64,6 +64,22 @@ const AddMenu = () => {
     setIsLoading(false);
     setOpen(false);
   };
+
+  const handleRemove = async (menuId: string) => {
+    try {
+      await removeMenu(menuId);
+      await getRestaurant();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchRes = async () => {
+      await getRestaurant();
+    };
+    fetchRes();
+  }, []);
   return (
     <div className="max-w-6xl mx-auto my-10">
       <div className="flex justify-between">
@@ -174,7 +190,7 @@ const AddMenu = () => {
           </DialogContent>
         </Dialog>
       </div>
-      {restaurant!.menus.map((item: any, idx: number) => (
+      {restaurant?.menus!.map((item: any, idx: number) => (
         <div key={idx} className="mt-6 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
             <img
@@ -195,13 +211,22 @@ const AddMenu = () => {
             </div>
             <Button
               onClick={() => {
-                setSelectedMenu(restaurant!.menus[idx]);
+                setSelectedMenu(restaurant!.menus![idx]);
                 setEditOpen(true);
               }}
               size="sm"
               className="mt-2 bg-orange hover:bg-hoverOrange"
             >
               Edit
+            </Button>
+            <Button
+              onClick={() => {
+                handleRemove(restaurant.menus![idx]._id);
+              }}
+              size="sm"
+              className="mt-2 bg-orange hover:bg-hoverOrange"
+            >
+              Remove
             </Button>
           </div>
         </div>

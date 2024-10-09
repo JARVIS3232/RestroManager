@@ -3,53 +3,19 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { toast } from "sonner";
 import axios from "axios";
+import { RestaurantState } from "@/types/RestaurantTypes";
+import { Orders } from "@/types/OrderType";
 
-type MenuItem = {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-};
-
-type Restaurant = {
-  _id: string;
-  user: string;
-  restaurantName: string;
-  city: string;
-  country: string;
-  deliveryTime: number;
-  cuisines: string[];
-  menus: MenuItem[];
-  imageUrl: string;
-};
-
-type RestaurantState = {
-  restaurant: Restaurant | null;
-  searchedRestaurant: null;
-  appliedFilter: string[];
-  createRestaurant: (formData: FormData) => Promise<void>;
-  getRestaurant: () => Promise<void>;
-  updateRestaurant: (formData: FormData) => Promise<void>;
-  searchRestaurant: (
-    searchText: string,
-    searchQuery: string,
-    selectedCuisines: any
-  ) => Promise<void>;
-  addMenuToRestaurant: (menu: any) => void;
-  updatedMenuToRestaurant: (updatedMenu: any) => void;
-  setAppliedFilter: (value: string) => void;
-};
-
-const API_ENDPOINT = "http://localhost:3000/api/v1/restaurant";
+const API_ENDPOINT = "http://localhost:8000/api/v1/restaurant";
 axios.defaults.withCredentials = true;
 
 export const useRestaurantStore = create<RestaurantState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       restaurant: null,
       searchedRestaurant: null,
       appliedFilter: [],
+      restaurantOrders: [],
       createRestaurant: async (formData: FormData) => {
         try {
           const res = await axios.post(`${API_ENDPOINT}/`, formData, {
@@ -110,9 +76,25 @@ export const useRestaurantStore = create<RestaurantState>()(
             `${API_ENDPOINT}/search/${searchText}?${params.toString()}`
           );
           if (res.data.success) {
-            set({ searchedRestaurant: res.data.restaurants });
+            set({
+              searchedRestaurant: {
+                data: res.data.restaurants,
+              },
+            });
           }
         } catch (error) {
+          console.log(error);
+        }
+      },
+
+      getSingleRestaurant: async (restaurantId: string) => {
+        try {
+          const res = await axios.get(`${API_ENDPOINT}/${restaurantId}`);
+          if (res.data.success) {
+            set({ restaurant: res.data.restaurant });
+          }
+        } catch (error: any) {
+          toast.error(error.response.data.message);
           console.log(error);
         }
       },
@@ -151,6 +133,50 @@ export const useRestaurantStore = create<RestaurantState>()(
             appliedFilter: updatedFilter,
           };
         });
+      },
+      resetAppliedFilter: () => {
+        set({ appliedFilter: [] });
+      },
+
+      getRestaurantOrders: async () => {
+        try {
+          const res = await axios.get(`${API_ENDPOINT}/order`);
+          if (res.data.success) {
+            set({ restaurantOrders: res.data.orders });
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      updateRestaurantOrder: async (orderId: string, status: string) => {
+        try {
+          const res = await axios.put(
+            `${API_ENDPOINT}/order/${orderId}/status`,
+            { status },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (res.data.success) {
+            const updateOrder = get().restaurantOrders.map((order: Orders) => {
+              return order._id === orderId
+                ? { ...order, status: res.data.status }
+                : order;
+            });
+            set({ restaurantOrders: updateOrder });
+            toast.success(res.data.message, {
+              position: "top-center",
+              style: {
+                fontSize: "18px",
+              },
+            });
+          }
+        } catch (error: any) {
+          toast.error(error.response.data.message);
+          console.log(error);
+        }
       },
     }),
     {

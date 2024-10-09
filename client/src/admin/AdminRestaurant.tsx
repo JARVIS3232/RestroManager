@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,14 +68,14 @@ const AdminRestaurant = () => {
     const fetchRestaurant = async () => {
       await getRestaurant();
       setInput({
-        restaurantName: restaurant.restaurantName || "",
-        city: restaurant.city || "",
-        country: restaurant.country || "",
-        deliveryTime: restaurant.deliveryTime || 0,
-        cuisines: restaurant.cuisines
+        restaurantName: restaurant?.restaurantName || "",
+        city: restaurant?.city || "",
+        country: restaurant?.country || "",
+        deliveryTime: restaurant?.deliveryTime || 0,
+        cuisines: restaurant?.cuisines
           ? restaurant.cuisines.map((cuisine: string) => cuisine)
           : [],
-        imageFile: restaurant.imageFile || undefined,
+        imageFile: undefined,
       });
     };
     fetchRestaurant();

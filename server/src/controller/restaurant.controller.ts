@@ -155,6 +155,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     await order.save();
     res.status(200).json({
       success: true,
+      status: order.status,
       message: "Status updated",
     });
   } catch (error) {
@@ -215,7 +216,7 @@ export const getSingleRestaurant = async (req: Request, res: Response) => {
       });
       return;
     }
-    res.status(200).json(restaurant);
+    res.status(200).json({ success: true, restaurant: restaurant });
   } catch (error) {
     console.log(error);
     res.status(500).json({ messsage: "Internal server error" });

@@ -4,35 +4,10 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import axios from "axios";
 import { LoginInputState, SignupInputState } from "@/schema/userSchema";
 import { toast } from "sonner";
+import { UserState } from "@/types/UserTypes";
 
-const API_ENDPOINT = "http://localhost:3000/api/v1/user";
+const API_ENDPOINT = "http://localhost:8000/api/v1/user";
 axios.defaults.withCredentials = true;
-
-type User = {
-  fullName: string;
-  email: string;
-  contact: number;
-  address: string;
-  city: string;
-  country: string;
-  profilePicture: string;
-  admin: boolean;
-  isVerified: boolean;
-};
-
-type UserState = {
-  user: null | User;
-  isAuthenticated: boolean;
-  isCheckingAuth: boolean;
-  signup: (input: SignupInputState) => Promise<void>;
-  login: (input: LoginInputState) => Promise<void>;
-  verifyEmail: (verificationCode: string) => Promise<void>;
-  checkAuthentication: () => Promise<void>;
-  logout: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (token: string, newPassword: string) => Promise<void>;
-  updateProfile: (input: any) => Promise<void>;
-};
 
 export const useUserStore = create<UserState>()(
   persist(
@@ -48,7 +23,6 @@ export const useUserStore = create<UserState>()(
             },
           });
           if (res.data.success) {
-            console.log(res.data);
             toast(res.data.message, {
               position: "top-center",
               style: {
@@ -77,7 +51,6 @@ export const useUserStore = create<UserState>()(
             },
           });
           if (res.data.success) {
-            console.log(res.data);
             toast(res.data.message, {
               position: "top-center",
               style: {
@@ -203,7 +176,9 @@ export const useUserStore = create<UserState>()(
             },
           });
           if (res.data.success) {
-            toast.success(res.data.message);
+            toast.success(res.data.message, {
+              position: "top-center",
+            });
             set({ user: res.data.user, isAuthenticated: true });
           }
         } catch (error: any) {
