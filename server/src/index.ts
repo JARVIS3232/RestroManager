@@ -12,7 +12,7 @@ import path from "path";
 
 dotenv.config();
 const app: Application = express();
-const PORT: number = 8000;
+const PORT = process.env.PORT || 8000;
 const DIRNAME = path.resolve();
 
 app.use(bodyParser.json({ limit: "10mb" }));
