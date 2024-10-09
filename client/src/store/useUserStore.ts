@@ -142,7 +142,12 @@ export const useUserStore = create<UserState>()(
         try {
           const res = await axios.post(
             `${API_ENDPOINT}/forgot-password`,
-            email
+            { email },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
           );
           if (res.data.message) {
             toast.success(res.data.message);

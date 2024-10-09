@@ -29,6 +29,7 @@ import { useCartStore } from "@/store/useCartStore";
 const MobileNav = () => {
   const { cart } = useCartStore();
   const { user, logout } = useUserStore();
+  const [open, setOpen] = useState<boolean>();
   const [isLoading, setisLoading] = useState(false);
   const navigate = useNavigate();
   const clickHandler = async () => {
@@ -43,10 +44,11 @@ const MobileNav = () => {
     setisLoading(false);
   };
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           size="icon"
+          onClick={() => setOpen(false)}
           className="rounded-full bg-gray-200 text-black hover:bg-gray-200"
           variant="outline"
         >
@@ -62,6 +64,7 @@ const MobileNav = () => {
           <Separator className="my-2" />
           <Link
             to="/profile"
+            onClick={() => setOpen(false)}
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
           >
             <User />
@@ -69,6 +72,7 @@ const MobileNav = () => {
           </Link>
           <Link
             to="/order/status"
+            onClick={() => setOpen(false)}
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
           >
             <HandPlatter />
@@ -76,6 +80,7 @@ const MobileNav = () => {
           </Link>
           <Link
             to="/cart"
+            onClick={() => setOpen(false)}
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
           >
             <ShoppingCart />
@@ -91,6 +96,7 @@ const MobileNav = () => {
             <>
               <Link
                 to="/admin/menu"
+                onClick={() => setOpen(false)}
                 className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
               >
                 <Menu />
@@ -98,6 +104,7 @@ const MobileNav = () => {
               </Link>
               <Link
                 to="admin/restaurant"
+                onClick={() => setOpen(false)}
                 className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
               >
                 <UtensilsCrossed />
@@ -105,6 +112,7 @@ const MobileNav = () => {
               </Link>
               <Link
                 to="admin/Orders"
+                onClick={() => setOpen(false)}
                 className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
               >
                 <PackageCheck />

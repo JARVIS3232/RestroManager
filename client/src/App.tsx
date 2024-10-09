@@ -26,7 +26,9 @@ import Loading from "./components/Loading";
 
 const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useUserStore();
-  if (!isAuthenticated) {
+  const unrestrictedPaths = ["/forgot-password", "/reset-password"];
+  const currentPath = window.location.pathname;
+  if (!isAuthenticated && !unrestrictedPaths.includes(currentPath)) {
     return <Navigate to="/login" replace />;
   }
   if (!user?.isVerified) {
@@ -131,14 +133,10 @@ const appRouter = createBrowserRouter([
   },
   {
     path: "/forget-password",
-    element: (
-      <AuthenticatedUser>
-        <ForgetPassword />
-      </AuthenticatedUser>
-    ),
+    element: <ForgetPassword />,
   },
   {
-    path: "/reset-password",
+    path: "/reset-password/:token",
     element: <ResetPassword />,
   },
   {

@@ -161,7 +161,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     await sendPasswordResetEmail(
       user.email,
-      `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`
+      `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
     );
     res.status(200).json({
       succes: true,
@@ -176,7 +176,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
-    const { newPassword } = req.body();
+    const { newPassword } = req.body;
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordTokenExpiresAt: { $gt: Date.now() },
